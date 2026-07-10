@@ -284,7 +284,7 @@
       return (
         '<button data-opt="' + esc(o) + '" class="w-full text-center p-4 rounded-xl border-2 transition-all duration-300 hover:border-burgundy-600/50 hover:bg-accent/50 font-medium text-sm md:text-base flex items-center gap-3 opacity-0 animate-fade-in-up ' +
         (on ? "border-burgundy-700 bg-burgundy-700/10 text-charcoal-700" : "border-gold-300 bg-card text-charcoal-700") + '" style="animation-delay:' + (i * 0.1) + 's;animation-fill-mode:forwards">' +
-        '<span class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ' + (on ? "border-burgundy-700" : "border-gold-300") + '">' +
+        '<span class="opt-dot w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ' + (on ? "border-burgundy-700" : "border-gold-300") + '">' +
         (on ? '<span class="w-3 h-3 rounded-full bg-burgundy-700"></span>' : "") + "</span>" +
         '<span class="flex-1 text-left">' + fmtOption(o) + "</span></button>"
       );
@@ -304,7 +304,7 @@
       return (
         '<button data-opt="' + esc(o) + '" class="w-full text-left p-4 rounded-xl border-2 transition-all duration-300 hover:border-burgundy-600/50 hover:bg-accent/50 font-medium text-sm md:text-base flex items-center gap-3 opacity-0 animate-fade-in-up ' +
         (on ? "border-burgundy-700 bg-burgundy-700/10 text-charcoal-700" : "border-gold-300 bg-card text-charcoal-700") + '" style="animation-delay:' + (i * 0.1) + 's;animation-fill-mode:forwards">' +
-        '<span class="w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ' + (on ? "border-burgundy-700 bg-burgundy-700" : "border-gold-300") + '">' +
+        '<span class="cb-box w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ' + (on ? "border-burgundy-700 bg-burgundy-700" : "border-gold-300 bg-transparent") + '">' +
         (on ? ICON.check("w-4 h-4 text-white") : "") + "</span>" +
         '<span class="text-center flex-1">' + fmtOption(o) + "</span></button>"
       );
@@ -380,14 +380,45 @@
     } else if (s.type === "confirmation") {
       q("#confirm-btn").onclick = nextStep;
     } else if (s.type === "radio") {
+      // Atualiza a seleção NO LUGAR (sem re-render) — evita a "tremida" das animações.
+      var paintRadio = function (opt) {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-opt]"), function (btn) {
+          var on = btn.getAttribute("data-opt") === opt;
+          btn.className = "w-full text-center p-4 rounded-xl border-2 transition-all duration-300 hover:border-burgundy-600/50 hover:bg-accent/50 font-medium text-sm md:text-base flex items-center gap-3 " +
+            (on ? "border-burgundy-700 bg-burgundy-700/10 text-charcoal-700" : "border-gold-300 bg-card text-charcoal-700");
+          var dot = btn.querySelector(".opt-dot");
+          if (dot) {
+            dot.className = "opt-dot w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all " + (on ? "border-burgundy-700" : "border-gold-300");
+            dot.innerHTML = on ? '<span class="w-3 h-3 rounded-full bg-burgundy-700"></span>' : "";
+          }
+        });
+      };
       Array.prototype.forEach.call(document.querySelectorAll("[data-opt]"), function (b) {
         b.onclick = function () {
-          state.answers[state.step] = b.getAttribute("data-opt");
-          renderQuiz();
+          var opt = b.getAttribute("data-opt");
+          state.answers[state.step] = opt;
+          paintRadio(opt);
           setTimeout(nextStep, 400);
         };
       });
     } else if (s.type === "checkbox") {
+      // Marca/desmarca NO LUGAR (sem re-render) — evita a "tremida".
+      var paintCb = function () {
+        var cur = state.answers[state.step] || [];
+        Array.prototype.forEach.call(document.querySelectorAll("[data-opt]"), function (btn) {
+          var on = cur.indexOf(btn.getAttribute("data-opt")) !== -1;
+          btn.className = "w-full text-left p-4 rounded-xl border-2 transition-all duration-300 hover:border-burgundy-600/50 hover:bg-accent/50 font-medium text-sm md:text-base flex items-center gap-3 " +
+            (on ? "border-burgundy-700 bg-burgundy-700/10 text-charcoal-700" : "border-gold-300 bg-card text-charcoal-700");
+          var box = btn.querySelector(".cb-box");
+          if (box) {
+            box.className = "cb-box w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all " + (on ? "border-burgundy-700 bg-burgundy-700" : "border-gold-300 bg-transparent");
+            box.innerHTML = on ? ICON.check("w-4 h-4 text-white") : "";
+          }
+        });
+        var nb = q("#cb-next");
+        if (nb) nb.className = "w-full py-4 rounded-xl font-bold text-lg transition-all " +
+          (cur.length > 0 ? "bg-burgundy-700 text-white hover:bg-burgundy-800" : "bg-charcoal-300 text-charcoal-500 cursor-not-allowed");
+      };
       Array.prototype.forEach.call(document.querySelectorAll("[data-opt]"), function (b) {
         b.onclick = function () {
           var o = b.getAttribute("data-opt");
@@ -395,7 +426,7 @@
           if (cur.indexOf(o) !== -1) cur = cur.filter(function (x) { return x !== o; });
           else cur = cur.concat([o]);
           state.answers[state.step] = cur;
-          renderQuiz();
+          paintCb();
         };
       });
       q("#cb-next").onclick = function () { if ((state.answers[state.step] || []).length > 0) nextStep(); };
