@@ -4,12 +4,11 @@
  */
 window.CONFIG = {
   // ---------------------------------------------------------------------------
-  // PLAYER DE VÍDEO (VSL)
-  // TODO: substituir pelo embed do Vturb.
-  // Se VSL_EMBED_CODE tiver qualquer HTML (Vturb/ConverteAI), o player nativo é
-  // renderizado. Se ficar vazio (""), cai no fallback do YouTube abaixo.
+  // PLAYER DE VÍDEO (VSL) — player nativo com overlay "clique para ouvir" e barra vermelha.
+  // Se VSL_EMBED_CODE tiver HTML (Vturb/ConverteAI), ele é usado no lugar do vídeo nativo.
   VSL_EMBED_CODE: "",
-  YOUTUBE_EMBED_URL: "https://www.youtube.com/embed/KCUzCsT1cwM",
+  // Vídeo VSL hospedado no próprio site (arquivo em assets/). Troque aqui se mudar o vídeo.
+  VSL_VIDEO_URL: "assets/vsl.mp4",
 
   // ---------------------------------------------------------------------------
   // CHECKOUT (não alterar sem necessidade — é o link da Hotmart)

@@ -589,18 +589,48 @@
   // ===========================================================================
   // PLAYER DE VÍDEO  [MUDANÇA 8]
   // ===========================================================================
+  // Ícone de som mutado (alto-falante com risco diagonal), como no overlay de VSL.
+  var VSL_MUTED_ICON =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="2" x2="1" y2="22"/></svg>';
+
   function videoBlock() {
-    // TODO: substituir pelo embed do Vturb.
-    // Se CONFIG.VSL_EMBED_CODE estiver preenchido, renderiza o player nativo
-    // (Vturb/ConverteAI). Caso contrário, mantém o YouTube atual como fallback.
+    // Player VSL nativo: autoplay MUTADO + overlay "clique para ouvir" + barra vermelha de progresso.
+    // Se CONFIG.VSL_EMBED_CODE tiver HTML (Vturb/ConverteAI), ele é usado no lugar do vídeo nativo.
     if (CFG.VSL_EMBED_CODE && CFG.VSL_EMBED_CODE.trim()) {
       return '<div class="w-full rounded-xl overflow-hidden shadow-burgundy">' + CFG.VSL_EMBED_CODE + "</div>";
     }
+    var src = CFG.VSL_VIDEO_URL || "assets/vsl.mp4";
     return (
-      '<div class="w-full aspect-video rounded-xl overflow-hidden shadow-burgundy">' +
-      '<iframe src="' + esc(CFG.YOUTUBE_EMBED_URL || "") + '" class="w-full h-full" ' +
-      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Video"></iframe></div>'
+      '<div class="vsl-wrap shadow-burgundy">' +
+      '<video id="vsl-video" src="' + esc(src) + '" muted autoplay playsinline webkit-playsinline preload="auto"></video>' +
+      '<button id="vsl-unmute" class="vsl-overlay" aria-label="Clique para ouvir"><div class="vsl-box">' +
+      '<span class="vsl-icon">' + VSL_MUTED_ICON + "</span>" +
+      '<span class="vsl-t1">sua transformação começou</span>' +
+      '<span class="vsl-t2">clique para ouvir</span></div></button>' +
+      '<div class="vsl-bar"><div id="vsl-bar-fill"></div></div>' +
+      "</div>"
     );
+  }
+
+  function bindVSL() {
+    var v = document.getElementById("vsl-video");
+    if (!v) return;
+    var ov = document.getElementById("vsl-unmute");
+    var fill = document.getElementById("vsl-bar-fill");
+    v.muted = true;
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
+    if (ov) ov.addEventListener("click", function () {
+      v.muted = false;
+      var pp = v.play();
+      if (pp && pp.catch) pp.catch(function () {});
+      ov.classList.add("vsl-hidden");
+    });
+    v.addEventListener("timeupdate", function () {
+      if (v.duration && fill) fill.style.width = (v.currentTime / v.duration * 100) + "%";
+    });
   }
 
   // ===========================================================================
@@ -784,7 +814,18 @@
       '<p class="text-muted-foreground text-xs italic">"A quem recorre a Maria, jamais será desamparado"</p>' +
 
       "</div></div>" + musicButton() +
-      '<style>@keyframes pulse-yellow{0%,100%{box-shadow:0 0 10px rgba(255,215,0,.5),0 0 20px rgba(255,215,0,.3);transform:scale(1)}50%{box-shadow:0 0 20px rgba(255,215,0,.7),0 0 40px rgba(255,215,0,.5);transform:scale(1.02)}}@keyframes pulse-button{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}</style>' +
+      '<style>@keyframes pulse-yellow{0%,100%{box-shadow:0 0 10px rgba(255,215,0,.5),0 0 20px rgba(255,215,0,.3);transform:scale(1)}50%{box-shadow:0 0 20px rgba(255,215,0,.7),0 0 40px rgba(255,215,0,.5);transform:scale(1.02)}}@keyframes pulse-button{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}' +
+      '.vsl-wrap{position:relative;width:100%;border-radius:.75rem;overflow:hidden;line-height:0}' +
+      '.vsl-wrap video{width:100%;height:auto;display:block;background:#000}' +
+      '.vsl-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:9%;background:transparent;border:none;cursor:pointer}' +
+      '.vsl-overlay.vsl-hidden{display:none}' +
+      '.vsl-box{width:100%;display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:1.1rem 1rem;border-radius:.75rem;background:rgba(228,228,228,.14);border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55);animation:vsl-pulse 2.4s ease-in-out infinite}' +
+      '.vsl-box .vsl-icon{display:block;margin-bottom:.15rem;line-height:0}' +
+      '.vsl-box .vsl-t1{font-size:1.15rem;font-weight:700;text-align:center;line-height:1.2}' +
+      '.vsl-box .vsl-t2{font-size:.95rem;font-weight:600;text-align:center;opacity:.95}' +
+      '@keyframes vsl-pulse{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.035);opacity:1}}' +
+      '.vsl-bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(0,0,0,.28)}' +
+      '.vsl-bar>div{height:100%;width:0;background:#ef2b2b;transition:width .25s linear}</style>' +
       "</main>";
 
     // binds
@@ -806,6 +847,7 @@
       };
     });
     bindMusic();
+    bindVSL();
     startTurmaCountdown();
     startTestiCarousel();
     window.scrollTo(0, 0);
