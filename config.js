@@ -13,7 +13,7 @@ window.CONFIG = {
 
   // ---------------------------------------------------------------------------
   // CHECKOUT (não alterar sem necessidade — é o link da Hotmart)
-  CHECKOUT_URL: "https://pay.hotmart.com/F103323048Y?checkoutMode=10&bid=1765238489038",
+  CHECKOUT_URL: "https://pay.hotmart.com/F103323048Y?checkoutMode=10",
 
   // ---------------------------------------------------------------------------
   // LEADS — para onde enviar nome + telefone + respostas do quiz.
