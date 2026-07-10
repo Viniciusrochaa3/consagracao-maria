@@ -330,7 +330,7 @@
       '<h2 class="text-xl md:text-2xl font-bold text-burgundy-700 text-center mb-3">📲 Falta um passo, ' + nome + ".</h2>" +
       '<p class="text-charcoal-700 text-center mb-6">Deixa seu WhatsApp pra te avisarmos quando a sua turma da Consagração abrir — e te enviarmos o link de acesso pra você não perder o início.</p>' +
       '<div class="mb-4">' +
-      '<input id="wpp-input" type="tel" inputmode="tel" autocomplete="tel" value="' + esc(formatPhone(state.phone)) + '" placeholder="+55 (11) 91234-5678" ' +
+      '<input id="wpp-input" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" value="' + esc(formatPhone(state.phone)) + '" placeholder="(11) 91234-5678" ' +
       'class="w-full p-4 rounded-xl border-2 border-gold-300 bg-card text-charcoal-700 placeholder-charcoal-400 focus:border-burgundy-600 focus:outline-none transition-colors text-center text-lg"></div>' +
       '<button id="wpp-btn" ' + (valid ? "" : "disabled") + ' class="w-full py-4 rounded-xl font-bold text-lg transition-all ' +
       (valid ? "bg-burgundy-700 text-white hover:bg-burgundy-800" : "bg-charcoal-300 text-charcoal-500 cursor-not-allowed") + '">QUERO SER AVISADO(A) 🙏</button>' +
@@ -459,7 +459,7 @@
   function formatPhone(digits) {
     digits = (digits || "").replace(/\D/g, "").slice(0, 11);
     if (!digits) return "";
-    var ddd = digits.slice(0, 2), rest = digits.slice(2), out = "+55 (" + ddd;
+    var ddd = digits.slice(0, 2), rest = digits.slice(2), out = "(" + ddd;
     if (ddd.length === 2) out += ") ";
     if (rest.length <= 4) out += rest;
     else if (rest.length <= 8) out += rest.slice(0, 4) + "-" + rest.slice(4);
