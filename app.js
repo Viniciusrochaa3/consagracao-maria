@@ -12,6 +12,7 @@
   var IMG_PRODUTOS = "assets/produtos-consagracao-CtH9pHKC.jpg";
   var IMG_BONUS1 = "assets/bonus-1-B9lGvJE_.jpg";
   var IMG_BONUS2 = "assets/bonus-2-DqT0E-YA.jpg";
+  var IMG_BONUS3 = "assets/bonus-3.jpg";
 
   // --- Estado global do funil ------------------------------------------------
   var state = {
@@ -633,9 +634,10 @@
       return '<div class="w-full rounded-xl overflow-hidden shadow-burgundy">' + CFG.VSL_EMBED_CODE + "</div>";
     }
     var src = CFG.VSL_VIDEO_URL || "assets/vsl.mp4";
+    var poster = CFG.VSL_POSTER_URL || "assets/vsl-poster.jpg";
     return (
       '<div class="vsl-wrap shadow-burgundy">' +
-      '<video id="vsl-video" src="' + esc(src) + '" muted autoplay playsinline webkit-playsinline preload="auto"></video>' +
+      '<video id="vsl-video" src="' + esc(src) + '" poster="' + esc(poster) + '" muted autoplay playsinline webkit-playsinline preload="auto"></video>' +
       '<button id="vsl-unmute" class="vsl-overlay" aria-label="Clique para ouvir"><div class="vsl-box">' +
       '<span class="vsl-t1">sua transformação começou</span>' +
       '<span class="vsl-icon">' + VSL_MUTED_ICON + "</span>" +
@@ -651,6 +653,10 @@
     var ov = document.getElementById("vsl-unmute");
     var fill = document.getElementById("vsl-bar-fill");
     v.muted = true;
+    // Se o autoplay for bloqueado, força renderizar o 1º quadro (backup do poster) — sem tela preta.
+    v.addEventListener("loadeddata", function () {
+      if (v.paused) { try { v.currentTime = 0.05; } catch (e) {} }
+    });
     var p = v.play();
     if (p && p.catch) p.catch(function () {});
     if (ov) ov.addEventListener("click", function () {
@@ -777,6 +783,8 @@
       // [MUDANÇA 4] Diário 2025 -> 2026
       bonusCard("BÔNUS #2", ICON.sparkles("w-5 h-5 text-primary") + " Meu Diário de Oração 2026", IMG_BONUS2, "Meu Diário de Oração 2026",
         "Com dedicatória especial. Devocionário exclusivo com orações e novenas à Nossa Senhora.", "R$ 96,90") +
+      bonusCard("BÔNUS #3", ICON.sparkles("w-5 h-5 text-primary") + " Nossa Senhora de Guadalupe", IMG_BONUS3, "Nossa Senhora de Guadalupe",
+        "Dicionário devocional sobre Nossa Senhora de Guadalupe: a história da aparição, orações e a mensagem da Mãe.", "R$ 89,90") +
       "</div></div>" +
 
       // oferta + turma + preço
@@ -885,11 +893,11 @@
   }
 
   function bonusCard(tag, titleHtml, img, alt, desc, valor) {
-    return '<div class="bg-card rounded-2xl overflow-hidden border border-border">' +
+    return '<div class="bonus-card bg-card rounded-2xl overflow-hidden border border-border">' +
       '<div class="bg-secondary p-3 flex justify-between items-center"><span class="text-foreground text-sm font-bold">' + esc(tag) + "</span>" +
       '<span class="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">GRÁTIS</span></div>' +
       '<div class="p-4"><h3 class="font-bold text-foreground mb-3 flex items-center gap-2">' + titleHtml + "</h3>" +
-      '<div class="rounded-xl mb-3 overflow-hidden"><img src="' + img + '" alt="' + esc(alt) + '" class="w-full h-auto rounded-xl"></div>' +
+      '<div class="rounded-xl mb-3 overflow-hidden"><img src="' + img + '" alt="' + esc(alt) + '" class="w-full h-auto rounded-xl" onerror="var c=this.closest(\'.bonus-card\'); if(c){c.style.display=\'none\';}"></div>' +
       '<p class="text-muted-foreground text-sm mb-3">' + esc(desc) + "</p>" +
       '<div class="bg-secondary rounded-lg p-2 text-center"><p class="text-muted-foreground text-sm">Valor: <span class="line-through text-primary font-bold">' + esc(valor) + "</span></p></div></div></div>";
   }

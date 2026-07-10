@@ -9,6 +9,8 @@ window.CONFIG = {
   VSL_EMBED_CODE: "",
   // Vídeo VSL hospedado no próprio site (arquivo em assets/). Troque aqui se mudar o vídeo.
   VSL_VIDEO_URL: "assets/vsl.mp4",
+  // Quadro de capa mostrado ANTES do play (evita tela preta). Gerado do próprio vídeo.
+  VSL_POSTER_URL: "assets/vsl-poster.jpg",
 
   // ---------------------------------------------------------------------------
   // CHECKOUT (não alterar sem necessidade — é o link da Hotmart)
