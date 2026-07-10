@@ -591,8 +591,8 @@
   // ===========================================================================
   // Ícone de som mutado (alto-falante com risco diagonal), como no overlay de VSL.
   var VSL_MUTED_ICON =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24" fill="none" ' +
-    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
     '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="2" x2="1" y2="22"/></svg>';
 
   function videoBlock() {
@@ -606,8 +606,8 @@
       '<div class="vsl-wrap shadow-burgundy">' +
       '<video id="vsl-video" src="' + esc(src) + '" muted autoplay playsinline webkit-playsinline preload="auto"></video>' +
       '<button id="vsl-unmute" class="vsl-overlay" aria-label="Clique para ouvir"><div class="vsl-box">' +
-      '<span class="vsl-icon">' + VSL_MUTED_ICON + "</span>" +
       '<span class="vsl-t1">sua transformação começou</span>' +
+      '<span class="vsl-icon">' + VSL_MUTED_ICON + "</span>" +
       '<span class="vsl-t2">clique para ouvir</span></div></button>' +
       '<div class="vsl-bar"><div id="vsl-bar-fill"></div></div>' +
       "</div>"
