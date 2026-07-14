@@ -13,6 +13,10 @@ window.CONFIG = {
   VSL_POSTER_URL: "assets/vsl-poster.jpg",
 
   // ---------------------------------------------------------------------------
+  // META PIXEL — usado no app.js para Advanced Matching e eventos (Lead, etc.)
+  META_PIXEL_ID: "1668138437819826",
+
+  // ---------------------------------------------------------------------------
   // CHECKOUT (não alterar sem necessidade — é o link da Hotmart)
   CHECKOUT_URL: "https://pay.hotmart.com/F103323048Y?checkoutMode=10",
 

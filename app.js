@@ -476,6 +476,23 @@
   }
 
   // ===========================================================================
+  // META PIXEL — Advanced Matching + eventos (melhora a nota de correspondência)
+  // ===========================================================================
+  var PIXEL_ID = CFG.META_PIXEL_ID || "1668138437819826";
+  function fbTrack(ev, params) {
+    if (window.fbq) { try { fbq("track", ev, params || {}); } catch (e) {} }
+  }
+  // Re-inicia o pixel passando nome + telefone (o pixel hasheia sozinho) -> sobe a nota.
+  function fbSetUser() {
+    if (!window.fbq) return;
+    var ud = {};
+    if (state.userName) ud.fn = state.userName.trim().split(/\s+/)[0].toLowerCase();
+    var d = (state.phone || "").replace(/\D/g, "");
+    if (d.length >= 10) ud.ph = "55" + d; // formato internacional p/ matching
+    try { fbq("init", PIXEL_ID, ud); } catch (e) {}
+  }
+
+  // ===========================================================================
   // LEAD — salva nome + telefone + respostas (mesmo payload)  [MUDANÇA 2]
   // ===========================================================================
   function leadPayload() {
@@ -501,7 +518,8 @@
         }).catch(function () {});
       } catch (e) {}
     }
-    if (window.fbq) { try { fbq("track", "Lead"); } catch (e) {} }
+    fbSetUser(); // Advanced Matching (nome + telefone) — melhora a nota do pixel
+    if (!state._leadFired) { state._leadFired = true; fbTrack("Lead", { content_name: "Consagracao 15 dias" }); }
   }
 
   // ===========================================================================
@@ -697,7 +715,10 @@
   // ===========================================================================
   // RESULTADO
   // ===========================================================================
-  function goCheckout() { window.location.href = CFG.CHECKOUT_URL; }
+  function goCheckout() {
+    fbTrack("InitiateCheckout", { content_name: "Consagracao a Nossa Senhora", value: 27.90, currency: "BRL" });
+    window.location.href = CFG.CHECKOUT_URL;
+  }
 
   function renderResult() {
     var nome = state.userName ? state.userName.toUpperCase() : "";
@@ -889,6 +910,7 @@
     bindVSL();
     startTurmaCountdown();
     startTestiCarousel();
+    if (!state._vcFired) { state._vcFired = true; fbSetUser(); fbTrack("ViewContent", { content_name: "Resultado Consagracao", value: 27.90, currency: "BRL" }); }
     window.scrollTo(0, 0);
   }
 
