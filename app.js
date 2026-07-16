@@ -717,7 +717,12 @@
   // ===========================================================================
   function goCheckout() {
     fbTrack("InitiateCheckout", { content_name: "Consagracao a Nossa Senhora", value: 27.90, currency: "BRL" });
-    window.location.href = CFG.CHECKOUT_URL;
+    // Repassa os parâmetros/UTMs da página atual pro checkout (orientação do suporte Utmify):
+    // usa window.location.search pra garantir que utm_source, campaign, etc. cheguem na Hotmart.
+    var url = CFG.CHECKOUT_URL;
+    var qs = (window.location.search || "").replace(/^\?/, "");
+    if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
+    window.location.href = url;
   }
 
   function renderResult() {
