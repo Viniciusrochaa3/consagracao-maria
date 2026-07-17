@@ -3,6 +3,9 @@
  * Mexa só aqui para ajustar player, webhook e contadores — sem tocar no app.js.
  */
 window.CONFIG = {
+  // Slug deste quiz nas análises do Painel Admin (mude ao clonar p/ teste A/B)
+  QUIZ_SLUG: "quiz1",
+
   // ---------------------------------------------------------------------------
   // PLAYER DE VÍDEO (VSL) — player nativo com overlay "clique para ouvir" e barra vermelha.
   // Se VSL_EMBED_CODE tiver HTML (Vturb/ConverteAI), ele é usado no lugar do vídeo nativo.

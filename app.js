@@ -219,6 +219,11 @@
   // ===========================================================================
   function renderQuiz() {
     var s = STEPS[state.step];
+    if (window.LM) {
+      if (state.step === 0) window.LM.track("quiz_start", 0, null);
+      window.LM.track("step_view", state.step,
+        s.type + (s.question ? ": " + String(s.question).replace(/\n/g, " ").slice(0, 60) : ""));
+    }
     var inner;
     switch (s.type) {
       case "name-input": inner = stepName(); break;
@@ -507,6 +512,7 @@
     };
   }
   function saveLead() {
+    if (window.LM) window.LM.track("lead");
     var payload = leadPayload();
     try { localStorage.setItem("consagracao_lead", JSON.stringify(payload)); } catch (e) {}
     if (CFG.LEAD_WEBHOOK_URL) {
@@ -722,10 +728,16 @@
     var url = CFG.CHECKOUT_URL;
     var qs = (window.location.search || "").replace(/^\?/, "");
     if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
+    // rastreio da venda por quiz (sck volta no webhook da Hotmart)
+    if (window.LM) {
+      window.LM.track("checkout_click");
+      if (url.indexOf("sck=") < 0) url += (url.indexOf("?") >= 0 ? "&" : "?") + "sck=" + encodeURIComponent(window.LM.slug);
+    }
     window.location.href = url;
   }
 
   function renderResult() {
+    if (window.LM) window.LM.track("vsl_view");
     var nome = state.userName ? state.userName.toUpperCase() : "";
     var headline = (nome ? esc(nome) + ", " : "") + "NOSSA SENHORA OUVIU VOCÊ.";
     var body = getPersonaBody();
