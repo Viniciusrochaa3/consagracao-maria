@@ -219,11 +219,6 @@
   // ===========================================================================
   function renderQuiz() {
     var s = STEPS[state.step];
-    if (window.LM) {
-      if (state.step === 0) window.LM.track("quiz_start", 0, null);
-      window.LM.track("step_view", state.step,
-        s.type + (s.question ? ": " + String(s.question).replace(/\n/g, " ").slice(0, 60) : ""));
-    }
     var inner;
     switch (s.type) {
       case "name-input": inner = stepName(); break;
@@ -481,24 +476,10 @@
   }
 
   // ===========================================================================
-  // META PIXEL — Advanced Matching + eventos (melhora a nota de correspondência)
-  // ===========================================================================
-  var PIXEL_ID = CFG.META_PIXEL_ID || "1668138437819826";
-  function fbTrack(ev, params) {
-    if (window.fbq) { try { fbq("track", ev, params || {}); } catch (e) {} }
-  }
-  // Re-inicia o pixel passando nome + telefone (o pixel hasheia sozinho) -> sobe a nota.
-  function fbSetUser() {
-    if (!window.fbq) return;
-    var ud = {};
-    if (state.userName) ud.fn = state.userName.trim().split(/\s+/)[0].toLowerCase();
-    var d = (state.phone || "").replace(/\D/g, "");
-    if (d.length >= 10) ud.ph = "55" + d; // formato internacional p/ matching
-    try { fbq("init", PIXEL_ID, ud); } catch (e) {}
-  }
-
-  // ===========================================================================
   // LEAD — salva nome + telefone + respostas (mesmo payload)  [MUDANÇA 2]
+  // Obs.: os eventos do Pixel do Meta (Lead, ViewContent, InitiateCheckout) foram
+  // REMOVIDOS do código de propósito — quem dispara pro Meta agora é a UTMIFY
+  // (fonte única, pra não duplicar). O site só captura o lead e repassa os UTMs.
   // ===========================================================================
   function leadPayload() {
     return {
@@ -512,7 +493,6 @@
     };
   }
   function saveLead() {
-    if (window.LM) window.LM.track("lead");
     var payload = leadPayload();
     try { localStorage.setItem("consagracao_lead", JSON.stringify(payload)); } catch (e) {}
     if (CFG.LEAD_WEBHOOK_URL) {
@@ -524,8 +504,7 @@
         }).catch(function () {});
       } catch (e) {}
     }
-    fbSetUser(); // Advanced Matching (nome + telefone) — melhora a nota do pixel
-    if (!state._leadFired) { state._leadFired = true; fbTrack("Lead", { content_name: "Consagracao 15 dias" }); }
+    // (Eventos de pixel — Lead/Advanced Matching — NÃO são disparados aqui: a Utmify é a fonte única, evita duplicar.)
   }
 
   // ===========================================================================
@@ -722,22 +701,16 @@
   // RESULTADO
   // ===========================================================================
   function goCheckout() {
-    fbTrack("InitiateCheckout", { content_name: "Consagracao a Nossa Senhora", value: 27.90, currency: "BRL" });
+    // (InitiateCheckout NÃO é disparado aqui — quem cuida disso é a Utmify, pra não duplicar.)
     // Repassa os parâmetros/UTMs da página atual pro checkout (orientação do suporte Utmify):
     // usa window.location.search pra garantir que utm_source, campaign, etc. cheguem na Hotmart.
     var url = CFG.CHECKOUT_URL;
     var qs = (window.location.search || "").replace(/^\?/, "");
     if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
-    // rastreio da venda por quiz (sck volta no webhook da Hotmart)
-    if (window.LM) {
-      window.LM.track("checkout_click");
-      if (url.indexOf("sck=") < 0) url += (url.indexOf("?") >= 0 ? "&" : "?") + "sck=" + encodeURIComponent(window.LM.slug);
-    }
     window.location.href = url;
   }
 
   function renderResult() {
-    if (window.LM) window.LM.track("vsl_view");
     var nome = state.userName ? state.userName.toUpperCase() : "";
     var headline = (nome ? esc(nome) + ", " : "") + "NOSSA SENHORA OUVIU VOCÊ.";
     var body = getPersonaBody();
@@ -927,7 +900,6 @@
     bindVSL();
     startTurmaCountdown();
     startTestiCarousel();
-    if (!state._vcFired) { state._vcFired = true; fbSetUser(); fbTrack("ViewContent", { content_name: "Resultado Consagracao", value: 27.90, currency: "BRL" }); }
     window.scrollTo(0, 0);
   }
 
