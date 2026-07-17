@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <base href="../" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1668138437819826');
+    fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+
+    <!-- Utmify Pixel -->
+    <script>
+      window.pixelId = "6a5792a4d775854e48a0777f";
+      var a = document.createElement("script");
+      a.setAttribute("async", "");
+      a.setAttribute("defer", "");
+      a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+      document.head.appendChild(a);
+    </script>
+    <!-- End Utmify Pixel -->
+
+    <!-- Utmify UTMs (captura e repassa os UTMs pro checkout) -->
+    <script
+      src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+      data-utmify-prevent-subids
+      async
+      defer
+    ></script>
+    <!-- End Utmify UTMs -->
+
+    <title>Consagração a Nossa Senhora - Jornada de 15 Dias</title>
+    <meta name="description" content="Faça a Consagração a Nossa Senhora em 15 dias. Uma jornada que transforma sua vida, fortalece sua fé e te conecta com o amor da Mãe que nunca te abandona." />
+    <meta name="author" content="Maria Passa na Frente" />
+
+    <meta property="og:title" content="Consagração a Nossa Senhora - Jornada de 15 Dias" />
+    <meta property="og:description" content="Uma jornada de 15 dias que transforma sua vida e fortalece sua fé." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://i.ibb.co/4w139x5s/Captura-de-Tela-2025-05-23-a-s-21-46-20.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Consagração a Nossa Senhora" />
+    <meta name="twitter:description" content="Uma jornada de 15 dias que transforma sua vida." />
+    <meta name="twitter:image" content="https://i.ibb.co/4w139x5s/Captura-de-Tela-2025-05-23-a-s-21-46-20.png" />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- Meta Pixel noscript fallback -->
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1668138437819826&ev=PageView&noscript=1"
+    /></noscript>
+    <div id="root"></div>
+
+    <script src="config.js"></script>
+    <script>
+      // PLAYER UNIVERSAL — carrega os cards do quiz (?s=<slug>) do Painel Admin
+      (function () {
+        var SUPA = "https://dwquecpfcnfnihxwscrq.supabase.co";
+        var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXVlY3BmY25mbmloeHdzY3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNjc3MDQsImV4cCI6MjA5OTg0MzcwNH0.chpJ7TT0lpHztpSml7GPE9hk7XVrWlVi1d_dTtn-_9w";
+        function load(src) {
+          return new Promise(function (res) {
+            var t = document.createElement("script");
+            t.src = src; t.onload = res; t.onerror = res;
+            document.body.appendChild(t);
+          });
+        }
+        function boot() { load("tracker.js").then(function () { return load("app.js"); }); }
+        var m = /[?&]s=([a-z0-9-]{1,40})/.exec(window.location.search);
+        var slug = m ? m[1] : null;
+        if (!slug) { boot(); return; }
+        fetch(SUPA + "/rest/v1/quizzes?slug=eq." + slug + "&ativo=eq.true&select=slug,nome,cards,config",
+          { headers: { apikey: KEY, Authorization: "Bearer " + KEY } })
+          .then(function (r) { return r.json(); })
+          .then(function (rows) {
+            var qz = rows && rows[0];
+            if (qz && Array.isArray(qz.cards) && qz.cards.length) {
+              var n = qz.cards.length;
+              window.QUIZ_DEF = {
+                slug: qz.slug,
+                steps: qz.cards.map(function (s, i) {
+                  if (!s.progress) s.progress = Math.max(5, Math.round(((i + 1) / n) * 100));
+                  return s;
+                }),
+              };
+              window.CONFIG.QUIZ_SLUG = qz.slug;
+              var c = qz.config || {};
+              if (c.checkout_url) window.CONFIG.CHECKOUT_URL = c.checkout_url;
+              if (c.vsl_embed) window.CONFIG.VSL_EMBED_CODE = c.vsl_embed;
+              if (c.vsl_video_url) window.CONFIG.VSL_VIDEO_URL = c.vsl_video_url;
+              if (c.vsl_poster_url) window.CONFIG.VSL_POSTER_URL = c.vsl_poster_url;
+              if (qz.nome) document.title = qz.nome;
+            }
+            boot();
+          })
+          .catch(boot);
+      })();
+    </script>
+  </body>
+</html>

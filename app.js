@@ -93,7 +93,9 @@
     "Saúde e proteção para minha família.", // [MUDANÇA 6] nova 5ª opção
   ];
 
-  var STEPS = [
+  // PLAYER UNIVERSAL: se window.QUIZ_DEF existir (página /q/), os cards vêm
+  // do banco (Painel Admin). Sem ele, roda o quiz original abaixo.
+  var STEPS = (window.QUIZ_DEF && window.QUIZ_DEF.steps) || [
     { type: "name-input", progress: 10 },
     { type: "confirmation", progress: 20 },
     {
@@ -238,6 +240,7 @@
   }
 
   function nextStep() {
+    if (window.LM) window.LM.track("step_answer", state.step, null);
     if (state.step >= STEPS.length - 1) { startLoading(); return; }
     state.step += 1;
     renderQuiz();
@@ -517,6 +520,7 @@
     "Preparando seu caminho de 15 dias...",
   ];
   function startLoading() {
+    if (window.LM) window.LM.track("step_answer", state.step, null);
     saveLead(); // garante o lead salvo mesmo que o usuário tenha vindo por atalho
     root().innerHTML =
       '<div class="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center px-4">' +
