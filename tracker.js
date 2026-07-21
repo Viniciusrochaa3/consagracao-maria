@@ -40,6 +40,7 @@
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
+          sp_slug: window.SP_SLUG || null,
           quiz_slug: slug,
           session_id: sid,
           tipo: tipo,

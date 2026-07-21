@@ -221,6 +221,11 @@
   // ===========================================================================
   function renderQuiz() {
     var s = STEPS[state.step];
+    if (window.LM) {
+      if (state.step === 0) window.LM.track("quiz_start", 0, null);
+      window.LM.track("step_view", state.step,
+        s.type + (s.question ? ": " + String(s.question).replace(/\n/g, " ").slice(0, 60) : ""));
+    }
     var inner;
     switch (s.type) {
       case "name-input": inner = stepName(); break;
@@ -261,7 +266,7 @@
       '<div class="mb-6"><label class="block text-charcoal-700 font-medium mb-2">Seu nome, com fé 👇</label>' +
       '<input id="name-input" type="text" value="' + esc(state.userName) + '" placeholder="Escreva com fé...." ' +
       'class="w-full p-4 rounded-xl border-2 border-gold-300 bg-card text-charcoal-700 placeholder-charcoal-400 focus:border-burgundy-600 focus:outline-none transition-colors"></div>' +
-      '<button id="name-btn" class="w-full py-4 rounded-xl font-bold text-lg transition-all bg-charcoal-300 text-charcoal-500 cursor-not-allowed">QUERO ME CONSAGRAR</button></div>'
+      '<button id="name-btn" class="w-full py-4 rounded-xl font-bold text-lg transition-all bg-charcoal-300 text-charcoal-500 cursor-not-allowed">' + esc(SP.cta_texto || 'QUERO ME CONSAGRAR') + '</button></div>'
     );
   }
 
@@ -496,6 +501,7 @@
     };
   }
   function saveLead() {
+    if (window.LM) window.LM.track("lead");
     var payload = leadPayload();
     try { localStorage.setItem("consagracao_lead", JSON.stringify(payload)); } catch (e) {}
     if (CFG.LEAD_WEBHOOK_URL) {
@@ -539,7 +545,16 @@
       if (bar) bar.style.width = pct + "%";
       if (pctEl) pctEl.textContent = Math.round(pct) + "%";
       if (msg && msg.textContent !== LOADING_PHRASES[idx]) msg.textContent = LOADING_PHRASES[idx];
-      if (elapsed >= DURATION) { clearInterval(timer); location.hash = "#/resultado"; }
+      if (elapsed >= DURATION) {
+        clearInterval(timer);
+        if (CFG.SALES_URL) {
+          var qs2 = (window.location.search || "").replace(/^\?/, "");
+          if (!/(^|&)src=/.test(qs2)) qs2 += (qs2 ? "&" : "") + "src=" + encodeURIComponent(window.LM ? window.LM.slug : "quiz1");
+          window.location.href = CFG.SALES_URL + (CFG.SALES_URL.indexOf("?") >= 0 ? "&" : "?") + qs2;
+          return;
+        }
+        location.hash = "#/resultado";
+      }
     }, 50);
   }
 
@@ -711,12 +726,32 @@
     var url = CFG.CHECKOUT_URL;
     var qs = (window.location.search || "").replace(/^\?/, "");
     if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
+    // análise interna + etiqueta da venda (sck volta no webhook da Hotmart)
+    if (window.LM) {
+      window.LM.track("checkout_click");
+      var sck = window.LM.slug + (window.SP_SLUG ? "--" + window.SP_SLUG : "");
+      if (url.indexOf("sck=") < 0) url += (url.indexOf("?") >= 0 ? "&" : "?") + "sck=" + encodeURIComponent(sck);
+    }
     window.location.href = url;
   }
 
   function renderResult() {
+    if (window.LM) window.LM.track("vsl_view");
+    // restaura o lead salvo (quando a página de venda abre em navegação nova)
+    if (!state.userName) {
+      try {
+        var lead = JSON.parse(localStorage.getItem("consagracao_lead") || "null");
+        if (lead) {
+          state.userName = lead.name || "";
+          state.answers = lead.answers || {};
+          state.intention = lead.intention || "";
+          state.phone = lead.phone || "";
+        }
+      } catch (e) {}
+    }
+    var SP = window.SP_DEF || {};
     var nome = state.userName ? state.userName.toUpperCase() : "";
-    var headline = (nome ? esc(nome) + ", " : "") + "NOSSA SENHORA OUVIU VOCÊ.";
+    var headline = (nome ? esc(nome) + ", " : "") + esc(SP.headline || "NOSSA SENHORA OUVIU VOCÊ.");
     var body = getPersonaBody();
     var intentionLine = state.intention && state.intention.trim()
       ? '<p class="text-foreground italic mt-3">Sua intenção — “' + esc(state.intention.trim()) + '” — já está na lista de oração desta turma.</p>'
@@ -731,7 +766,10 @@
         '<span class="text-foreground text-sm"><strong>' + Number(CFG.LIVE_VIEWERS).toLocaleString("pt-BR") + "</strong> pessoas estão visualizando esta página</span></div>";
     }
 
-    var receberList = ["Guia da Consagração a Nossa Senhora", "15 Vídeos aulas exclusivas", "Orações Diárias Necessárias", "Santíssimo Sacramento", "Dicas Práticas", "Grupo de adoração"]
+    var receberItens = (SP.receber && SP.receber.length)
+      ? SP.receber
+      : ["Guia da Consagração a Nossa Senhora", "15 Vídeos aulas exclusivas", "Orações Diárias Necessárias", "Santíssimo Sacramento", "Dicas Práticas", "Grupo de adoração"];
+    var receberList = receberItens
       .map(function (g) {
         return '<div class="bg-card rounded-xl p-4 flex items-center gap-3 border border-border">' +
           '<div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">' + ICON.check("w-5 h-5 text-white") + "</div>" +
@@ -772,7 +810,7 @@
       // [MUDANÇA 8] vídeo (Vturb-ready)
       '<div class="mb-4 animate-fade-in">' + videoBlock() + "</div>" +
 
-      '<button class="cta-btn w-full py-4 rounded-xl font-bold text-lg text-black hover:opacity-90 transition-all mb-6 shadow-lg" style="background:linear-gradient(180deg,#FFD700 0%,#FFC107 100%);animation:pulse-yellow 2s ease-in-out infinite">QUERO ME CONSAGRAR</button>' +
+      '<button class="cta-btn w-full py-4 rounded-xl font-bold text-lg text-black hover:opacity-90 transition-all mb-6 shadow-lg" style="background:linear-gradient(180deg,#FFD700 0%,#FFC107 100%);animation:pulse-yellow 2s ease-in-out infinite">' + esc(SP.cta_texto || 'QUERO ME CONSAGRAR') + '</button>' +
 
       // benefícios
       '<div class="mb-8 bg-card border border-border rounded-xl p-5 shadow-sm animate-fade-in">' +
@@ -861,7 +899,7 @@
       '<div class="mb-8 text-center bg-card rounded-2xl p-6 border border-border">' +
       '<h2 class="text-xl font-bold text-foreground mb-2">Não perca esta oportunidade de transformação!</h2>' +
       '<p class="text-muted-foreground mb-4 text-sm">As inscrições desta turma se encerram <span class="text-primary font-bold">domingo às 23h59</span>. Garanta o seu lugar antes que a turma feche!</p>' +
-      '<button class="cta-btn w-full py-4 rounded-xl font-bold text-lg text-black hover:opacity-90 transition-all mb-4" style="background:linear-gradient(180deg,#FFD700 0%,#FFC107 100%);animation:pulse-yellow 2s ease-in-out infinite">QUERO ME CONSAGRAR AGORA</button>' +
+      '<button class="cta-btn w-full py-4 rounded-xl font-bold text-lg text-black hover:opacity-90 transition-all mb-4" style="background:linear-gradient(180deg,#FFD700 0%,#FFC107 100%);animation:pulse-yellow 2s ease-in-out infinite">' + esc(SP.cta_texto2 || SP.cta_texto || 'QUERO ME CONSAGRAR AGORA') + '</button>' +
       '<p class="text-muted-foreground text-xs">Acesso imediato e vitalício a todo o material</p></div>' +
 
       '<button id="restart-btn" class="text-muted-foreground text-sm underline hover:text-primary transition-colors mb-8">Fazer o quiz novamente</button>' +
