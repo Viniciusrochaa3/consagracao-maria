@@ -8,8 +8,8 @@
     // Domínio migrado: consagraçãomaria.online → quiz.lardemaria.online
     // Mesmo caminho + UTMs preservadas (campanhas antigas seguem funcionando).
     (function () {
-      var destino = "https://quiz.lardemaria.online" +
-        window.location.pathname + window.location.search + window.location.hash;
+      // Raiz antiga → redirecionador A/B de quizzes (UTMs preservadas)
+      var destino = "https://quiz.lardemaria.online/ir/" + window.location.search;
       window.location.replace(destino);
     })();
   </script>
