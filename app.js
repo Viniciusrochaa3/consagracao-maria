@@ -266,7 +266,7 @@
       '<div class="mb-6"><label class="block text-charcoal-700 font-medium mb-2">Seu nome, com fé 👇</label>' +
       '<input id="name-input" type="text" value="' + esc(state.userName) + '" placeholder="Escreva com fé...." ' +
       'class="w-full p-4 rounded-xl border-2 border-gold-300 bg-card text-charcoal-700 placeholder-charcoal-400 focus:border-burgundy-600 focus:outline-none transition-colors"></div>' +
-      '<button id="name-btn" class="w-full py-4 rounded-xl font-bold text-lg transition-all bg-charcoal-300 text-charcoal-500 cursor-not-allowed">' + esc(SP.cta_texto || 'QUERO ME CONSAGRAR') + '</button></div>'
+      '<button id="name-btn" class="w-full py-4 rounded-xl font-bold text-lg transition-all bg-charcoal-300 text-charcoal-500 cursor-not-allowed">QUERO ME CONSAGRAR</button></div>'
     );
   }
 
