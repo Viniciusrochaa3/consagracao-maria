@@ -2,83 +2,20 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Um instante…</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <style>
-    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-           background: #F1EDE4; font-family: Georgia, serif; color: #732626; flex-direction: column; gap: 16px; }
-    .spin { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #E9E2D2;
-            border-top-color: #732626; animation: g .8s linear infinite; }
-    @keyframes g { to { transform: rotate(360deg); } }
-    p { font-style: italic; font-size: 15px; }
-  </style>
-</head>
-<body>
-  <div class="spin"></div>
-  <p>Preparando o seu caminho…</p>
+  <meta name="robots" content="noindex" />
+  <title>Redirecionando…</title>
   <script>
-    // ===============================================================
-    // Redirecionador A/B de PÁGINAS DE VENDA — sorteia conforme os pesos
-    // no Painel Admin (tabela `quizzes`). Visitante que voltar cai no
-    // mesmo quiz (localStorage). Preserva UTMs e injeta ?src=<slug>.
-    // ===============================================================
+    // Domínio migrado: consagraçãomaria.online → quiz.lardemaria.online
+    // Mesmo caminho + UTMs preservadas (campanhas antigas seguem funcionando).
     (function () {
-      "use strict";
-      var SUPA = "https://dwquecpfcnfnihxwscrq.supabase.co";
-      var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXVlY3BmY25mbmloeHdzY3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNjc3MDQsImV4cCI6MjA5OTg0MzcwNH0.chpJ7TT0lpHztpSml7GPE9hk7XVrWlVi1d_dTtn-_9w";
-      var FALLBACK = { slug: "pv1", url: "https://xn--consagraomaria-xhb7d.online/v/?p=pv1" };
-      var done = false;
-
-      function go(q) {
-        if (done) return; done = true;
-        var sid;
-        try {
-          localStorage.setItem("lm_pv", q.slug);
-          sid = localStorage.getItem("lm_sid");
-          if (!sid) { sid = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12); localStorage.setItem("lm_sid", sid); }
-        } catch (e) { sid = "s-" + Math.random().toString(36).slice(2, 12); }
-        try {
-          fetch(SUPA + "/rest/v1/quiz_events", {
-            method: "POST", keepalive: true,
-            headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
-            body: JSON.stringify({ quiz_slug: (/[?&]src=([a-z0-9-]{1,40})/.exec(window.location.search) || [null, "quiz1"])[1], sp_slug: q.slug, session_id: sid, tipo: "redirect" }),
-          }).catch(function () {});
-        } catch (e) {}
-        var qs = (window.location.search || "").replace(/^\?/, "");
-        var url = q.url;
-        if (url.indexOf("p=") < 0) url += (url.indexOf("?") >= 0 ? "&" : "?") + "p=" + encodeURIComponent(q.slug);
-        if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
-        window.location.replace(url);
-      }
-
-      // se nada acontecer em 3,5s, vai pro quiz padrão (nunca deixar o lead parado)
-      setTimeout(function () { go(FALLBACK); }, 3500);
-
-      var sticky = null;
-      try { sticky = localStorage.getItem("lm_pv"); } catch (e) {}
-
-      fetch(SUPA + "/rest/v1/salespages?select=slug,url,peso&ativo=eq.true&peso=gt.0", {
-        headers: { apikey: KEY, Authorization: "Bearer " + KEY },
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (list) {
-          if (!Array.isArray(list) || !list.length) return go(FALLBACK);
-          if (sticky) {
-            var m = list.filter(function (q) { return q.slug === sticky; })[0];
-            if (m) return go(m);
-          }
-          var total = list.reduce(function (s, q) { return s + (q.peso || 0); }, 0);
-          if (total <= 0) return go(FALLBACK);
-          var r = Math.random() * total, acc = 0, chosen = list[list.length - 1];
-          for (var i = 0; i < list.length; i++) {
-            acc += list[i].peso || 0;
-            if (r <= acc) { chosen = list[i]; break; }
-          }
-          go(chosen);
-        })
-        .catch(function () { go(FALLBACK); });
+      var destino = "https://quiz.lardemaria.online" +
+        window.location.pathname + window.location.search + window.location.hash;
+      window.location.replace(destino);
     })();
   </script>
+  <meta http-equiv="refresh" content="1;url=https://quiz.lardemaria.online/" />
+</head>
+<body style="font-family:Georgia,serif;background:#F1EDE4;color:#732626;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">
+  <p>Redirecionando para o novo endereço…</p>
 </body>
 </html>
