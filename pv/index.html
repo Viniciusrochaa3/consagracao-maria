@@ -46,7 +46,9 @@
           }).catch(function () {});
         } catch (e) {}
         var qs = (window.location.search || "").replace(/^\?/, "");
-        var url = q.url + (q.url.indexOf("?") >= 0 ? "&" : "?") + "p=" + encodeURIComponent(q.slug) + (qs ? "&" + qs : "");
+        var url = q.url;
+        if (url.indexOf("p=") < 0) url += (url.indexOf("?") >= 0 ? "&" : "?") + "p=" + encodeURIComponent(q.slug);
+        if (qs) url += (url.indexOf("?") >= 0 ? "&" : "?") + qs;
         window.location.replace(url);
       }
 
