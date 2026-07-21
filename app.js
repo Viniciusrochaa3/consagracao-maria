@@ -301,6 +301,7 @@
     return (
       '<div class="w-full max-w-[380px] mx-auto animate-fade-in">' + progressBar(s.progress) +
       '<h2 class="text-xl md:text-2xl font-bold text-burgundy-700 text-center mb-6 whitespace-pre-line">' + esc(s.question) + "</h2>" +
+      (s.imagem ? '<img src="' + esc(s.imagem) + '" alt="" class="w-full rounded-xl shadow-sm mb-6">' : "") +
       '<div class="space-y-3">' + opts + "</div></div>"
     );
   }
@@ -322,6 +323,7 @@
     return (
       '<div class="w-full max-w-[380px] mx-auto animate-fade-in">' + progressBar(s.progress) +
       '<h2 class="text-xl md:text-2xl font-bold text-burgundy-700 text-center mb-6 whitespace-pre-line">' + esc(s.question) + "</h2>" +
+      (s.imagem ? '<img src="' + esc(s.imagem) + '" alt="" class="w-full rounded-xl shadow-sm mb-6">' : "") +
       '<div class="space-y-3 mb-4">' + opts + "</div>" +
       '<p class="text-charcoal-500 text-sm italic text-center mb-6">' + esc(s.subtitle) + "</p>" +
       '<button id="cb-next" class="w-full py-4 rounded-xl font-bold text-lg transition-all ' +
